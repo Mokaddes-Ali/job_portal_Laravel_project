@@ -1,17 +1,65 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
+@extends('fontend.layout.app')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    {{ __("You're logged in!") }}
+@section('main')
+
+<section class="section-5 bg-2">
+    <div class="container py-5">
+        <div class="row">
+            <div class="col">
+                <nav aria-label="breadcrumb" class=" rounded-3 p-3 mb-4">
+                    <ol class="breadcrumb mb-0">
+                        <li class="breadcrumb-item"><a href="#">Home</a></li>
+                        <li class="breadcrumb-item active">Account Settings</li>
+                    </ol>
+                </nav>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-lg-3">
+                <div class="card border-0 shadow mb-4 p-3">
+                    <div class="s-body text-center mt-3">
+                        <img src="assets/assets/images/avatar7.png" alt="avatar"  class="rounded-circle img-fluid" style="width: 150px;">
+                        <h5 class="mt-3 pb-0">Mohit Singh</h5>
+                        <p class="text-muted mb-1 fs-6">Full Stack Developer</p>
+                        <div class="d-flex justify-content-center mb-2">
+                            <button data-bs-toggle="modal" data-bs-target="#exampleModal" type="button" class="btn btn-primary">Change Profile Picture</button>
+                        </div>
+                    </div>
                 </div>
+                <div class="card account-nav border-0 shadow mb-4 mb-lg-0">
+                    <div class="card-body p-0">
+                        <ul class="list-group list-group-flush ">
+                            <li class="list-group-item d-flex justify-content-between p-3">
+                                <a href="{{ route('profile.edit') }}">Account Settings</a>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                                <a href="post-job.html">Post a Job</a>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                                <a href="my-jobs.html">My Jobs</a>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                                <a href="job-applied.html">Jobs Applied</a>
+                            </li>
+                            <li class="list-group-item d-flex justify-content-between align-items-center p-3">
+                                <a href="saved-jobs.html">Saved Jobs</a>
+                            </li>                                                       
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-9">
+
+@include('profile.edit')
+
+    </div>
+</div>
+
+
+           
             </div>
         </div>
     </div>
-</x-app-layout>
+</section>
+
+@endsection

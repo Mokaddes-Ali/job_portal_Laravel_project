@@ -1,64 +1,74 @@
-<section>
-    <header>
-        <h2 class="text-lg font-medium text-gray-900">
-            {{ __('Profile Information') }}
-        </h2>
+               <form method="POST" action="{{ route('profile.update') }}">
+    @csrf
+    @method('PATCH')
 
-        <p class="mt-1 text-sm text-gray-600">
-            {{ __("Update your account's profile information and email address.") }}
-        </p>
-    </header>
+    <div class="card border-0 shadow mb-4">
+        <div class="card-body p-4">
+            <h4 class="mb-3">My Profile</h4>
 
-    <form id="send-verification" method="post" action="{{ route('verification.send') }}">
-        @csrf
-    </form>
+            <!-- Name -->
+            <div class="mb-3">
+                <label for="name" class="form-label">Name*</label>
+                <input type="text" name="name" id="name" class="form-control form-control-sm" placeholder="Enter Name"
+                       value="{{ old('name', auth()->user()->name) }}" required>
+                @error('name')
+                    <small class="text-danger">{{ $message }}</small>
+                @enderror
+            </div>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
-        @csrf
-        @method('patch')
+            <!-- Email -->
+            <div class="mb-3">
+                <label for="email" class="form-label">Email*</label>
+                <input type="email" name="email" id="email" class="form-control form-control-sm" placeholder="Enter Email"
+                       value="{{ old('email', auth()->user()->email) }}" required>
+                @error('email')
+                    <small class="text-danger">{{ $message }}</small>
+                @enderror
 
-        <div>
-            <x-input-label for="name" :value="__('Name')" />
-            <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" :value="old('name', $user->name)" required autofocus autocomplete="name" />
-            <x-input-error class="mt-2" :messages="$errors->get('name')" />
+                @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! auth()->user()->hasVerifiedEmail())
+                    <div class="text-warning small mt-2">
+                        Your email address is unverified. 
+                        <button form="send-verification" type="submit" class="btn btn-link p-0 align-baseline">Click here to re-send</button>
+                        @if (session('status') === 'verification-link-sent')
+                            <div class="text-success small mt-1">✔️ Verification link sent.</div>
+                        @endif
+                    </div>
+                @endif
+            </div>
+
+            <!-- Designation (Optional Field) -->
+            <!-- <div class="mb-3">
+                <label for="designation" class="form-label">Designation</label>
+                <input type="text" name="designation" id="designation" class="form-control form-control-sm" placeholder="Enter designation"
+                       value="{{ old('designation', $user->designation ?? '') }}">
+                @error('designation')
+                    <small class="text-danger">{{ $message }}</small>
+                @enderror
+            </div> -->
+
+            <!-- Mobile (Optional Field) -->
+            <!-- <div class="mb-3">
+                <label for="mobile" class="form-label">Mobile</label>
+                <input type="text" name="mobile" id="mobile" class="form-control form-control-sm" placeholder="Enter mobile number"
+                       value="{{ old('mobile', $user->mobile ?? '') }}">
+                @error('mobile')
+                    <small class="text-danger">{{ $message }}</small>
+                @enderror
+            </div> -->
         </div>
 
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" name="email" type="email" class="mt-1 block w-full" :value="old('email', $user->email)" required autocomplete="username" />
-            <x-input-error class="mt-2" :messages="$errors->get('email')" />
-
-            @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
-                <div>
-                    <p class="text-sm mt-2 text-gray-800">
-                        {{ __('Your email address is unverified.') }}
-
-                        <button form="send-verification" class="underline text-sm text-gray-600 hover:text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                            {{ __('Click here to re-send the verification email.') }}
-                        </button>
-                    </p>
-
-                    @if (session('status') === 'verification-link-sent')
-                        <p class="mt-2 font-medium text-sm text-green-600">
-                            {{ __('A new verification link has been sent to your email address.') }}
-                        </p>
-                    @endif
-                </div>
-            @endif
-        </div>
-
-        <div class="flex items-center gap-4">
-            <x-primary-button>{{ __('Save') }}</x-primary-button>
+        <!-- Submit -->
+        <div class="card-footer bg-white border-top-0 p-3 d-flex justify-content-between align-items-center">
+            <button type="submit" class="btn btn-sm btn-primary">Update</button>
 
             @if (session('status') === 'profile-updated')
-                <p
-                    x-data="{ show: true }"
-                    x-show="show"
-                    x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
-                    class="text-sm text-gray-600"
-                >{{ __('Saved.') }}</p>
+                <span class="text-success small">✔️ Profile updated.</span>
             @endif
         </div>
-    </form>
-</section>
+    </div>
+</form>
+
+<!-- Hidden form for verification resend -->
+<form id="send-verification" method="POST" action="{{ route('verification.send') }}" class="d-none">
+    @csrf
+</form>

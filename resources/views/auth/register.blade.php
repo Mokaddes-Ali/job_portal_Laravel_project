@@ -95,14 +95,9 @@
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
                 success: function (response) {
-                    $('#formMessage').html('<div class="alert alert-success">Registration successful! Redirecting...</div>');
+                    $('#formMessage').html('<div class="alert alert-success">Registration successful!</div>');
                     $('#registrationForm')[0].reset();
                     $('#reloadCaptcha').click(); // captcha reload
-
-                    // Optional: Redirect after few seconds
-                    setTimeout(() => {
-                        window.location.href = '{{ route("dashboard") }}';
-                    }, 2000);
                 },
                 error: function (xhr) {
                     let errors = xhr.responseJSON.errors;

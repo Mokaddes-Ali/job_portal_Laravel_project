@@ -1,25 +1,68 @@
-<x-guest-layout>
-    <div class="mb-4 text-sm text-gray-600">
-        {{ __('Forgot your password? No problem. Just let us know your email address and we will email you a password reset link that will allow you to choose a new one.') }}
+@extends('fontend.layout.app')
+
+@section('main')
+<section class="section-5">
+    <div class="container my-5">
+        <div class="py-lg-2">&nbsp;</div>
+        <div class="row d-flex justify-content-center">
+            <div class="col-md-5">
+                <div class="card shadow border-0 p-5">
+                    <h1 class="h4 mb-3">Forgot Password</h1>
+
+                    <!-- Success / Error Message -->
+                    <div id="formMessage" class="text-sm mb-3 text-muted"></div>
+
+                    <form method="POST" action="{{ route('password.email') }}" id="forgotPasswordForm">
+                        @csrf
+
+                        <!-- Email -->
+                        <div class="mb-3">
+                            <label for="email" class="mb-2 small">Email Address*</label>
+                            <input type="email" name="email" id="email" class="form-control form-control-sm" required autofocus>
+                        </div>
+                         <div class="d-flex justify-content-between align-items-center mt-3">
+                          <a href="{{ route('login') }}" class="small">← Back to Login</a>
+                        <button type="submit" class="btn btn-sm btn-primary mt-2">Reset Link</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     </div>
+</section>
 
-    <!-- Session Status -->
-    <x-auth-session-status class="mb-4" :status="session('status')" />
+<!-- jQuery -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-    <form method="POST" action="{{ route('password.email') }}">
-        @csrf
+<script>
+    $(document).ready(function () {
+        $('#forgotPasswordForm').submit(function (e) {
+            e.preventDefault();
+            $('#formMessage').html('');
 
-        <!-- Email Address -->
-        <div>
-            <x-input-label for="email" :value="__('Email')" />
-            <x-text-input id="email" class="block mt-1 w-full" type="email" name="email" :value="old('email')" required autofocus />
-            <x-input-error :messages="$errors->get('email')" class="mt-2" />
-        </div>
+            $.ajax({
+                url: '{{ route("password.email") }}',
+                method: 'POST',
+                data: $(this).serialize(),
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                success: function (response) {
+                    $('#formMessage').html('<div class="alert alert-success small">Reset link sent successfully! Please check your email.</div>');
+                    $('#forgotPasswordForm')[0].reset();
+                },
+                error: function (xhr) {
+                    let msg = 'Something went wrong.';
+                    if (xhr.responseJSON && xhr.responseJSON.errors) {
+                        msg = Object.values(xhr.responseJSON.errors)[0][0];
+                    } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                        msg = xhr.responseJSON.message;
+                    }
 
-        <div class="flex items-center justify-end mt-4">
-            <x-primary-button>
-                {{ __('Email Password Reset Link') }}
-            </x-primary-button>
-        </div>
-    </form>
-</x-guest-layout>
+                    $('#formMessage').html('<div class="alert alert-danger small">' + msg + '</div>');
+                }
+            });
+        });
+    });
+</script>
+@endsection
