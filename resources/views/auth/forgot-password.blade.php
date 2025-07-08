@@ -20,9 +20,10 @@
                             <label for="email" class="mb-2 small">Email Address*</label>
                             <input type="email" name="email" id="email" class="form-control form-control-sm" required autofocus>
                         </div>
-                         <div class="d-flex justify-content-between align-items-center mt-3">
-                          <a href="{{ route('login') }}" class="small">← Back to Login</a>
-                        <button type="submit" class="btn btn-sm btn-primary mt-2">Reset Link</button>
+
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <a href="{{ route('login') }}" class="small">← Back to Login</a>
+                            <button type="submit" class="btn btn-sm btn-primary mt-2" id="submitBtn">Reset Link</button>
                         </div>
                     </form>
                 </div>
@@ -36,23 +37,30 @@
 
 <script>
     $(document).ready(function () {
-        $('#forgotPasswordForm').submit(function (e) {
+        const $form = $('#forgotPasswordForm');
+        const $btn = $('#submitBtn');
+        const defaultBtnText = $btn.html();
+
+        $form.on('submit', function (e) {
             e.preventDefault();
             $('#formMessage').html('');
+            $btn.prop('disabled', true).html('🔄 Sending...');
 
             $.ajax({
-                url: '{{ route("password.email") }}',
+                url: $form.attr('action'),
                 method: 'POST',
-                data: $(this).serialize(),
+                data: $form.serialize(),
                 headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    'X-CSRF-TOKEN': $('input[name="_token"]').val()
                 },
                 success: function (response) {
-                    $('#formMessage').html('<div class="alert alert-success small">Reset link sent successfully! Please check your email.</div>');
-                    $('#forgotPasswordForm')[0].reset();
+                    $('#formMessage').html('<div class="alert alert-success small">✅ Reset link sent successfully! Please check your email.</div>');
+                    $form[0].reset();
+                    $btn.prop('disabled', false).html(defaultBtnText);
                 },
                 error: function (xhr) {
-                    let msg = 'Something went wrong.';
+                    let msg = '❌ Something went wrong.';
+
                     if (xhr.responseJSON && xhr.responseJSON.errors) {
                         msg = Object.values(xhr.responseJSON.errors)[0][0];
                     } else if (xhr.responseJSON && xhr.responseJSON.message) {
@@ -60,6 +68,7 @@
                     }
 
                     $('#formMessage').html('<div class="alert alert-danger small">' + msg + '</div>');
+                    $btn.prop('disabled', false).html(defaultBtnText);
                 }
             });
         });

@@ -9,7 +9,7 @@
                 <div class="card shadow border-0 p-5">
                     <h1 class="h3">Register</h1>
 
-                    <!-- AJAX Success/Error Alert -->
+                    <!-- AJAX Success/Error Message -->
                     <div id="formMessage"></div>
 
                     <form method="POST" action="{{ route('register') }}" id="registrationForm">
@@ -51,9 +51,8 @@
                             <input type="text" name="captcha" class="form-control" placeholder="Enter Captcha" required>
                         </div>
 
-
                         <!-- Submit -->
-                        <button type="submit" class="btn btn-primary mt-2">Register</button>
+                        <button type="submit" id="registerBtn" class="btn btn-primary mt-2">Register</button>
                     </form>
                 </div>
 
@@ -65,13 +64,14 @@
         </div>
     </div>
 </section>
+@endsection
 
-<!-- ✅ jQuery Ajax Script -->
+@section('customjs')
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
 
-        // ✅ Captcha Reload
+        // ✅ Reload Captcha
         $('#reloadCaptcha').click(function () {
             $.ajax({
                 type: 'GET',
@@ -82,10 +82,14 @@
             });
         });
 
-        // ✅ Registration Form Submit with AJAX
-        $('#registrationForm').submit(function (e) {
+        // ✅ AJAX Registration Submit
+        $('#registrationForm').on('submit', function (e) {
             e.preventDefault();
-            $('#formMessage').html(''); // clear old message
+            $('#formMessage').html('');
+            const $btn = $('#registerBtn');
+            const defaultText = $btn.html();
+
+            $btn.prop('disabled', true).html('🔄 Registering...');
 
             $.ajax({
                 url: '{{ route("register") }}',
@@ -95,9 +99,10 @@
                     'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
                 success: function (response) {
-                    $('#formMessage').html('<div class="alert alert-success">Registration successful!</div>');
+                    $('#formMessage').html('<div class="alert alert-success">✔️ Registration successful!</div>');
                     $('#registrationForm')[0].reset();
-                    $('#reloadCaptcha').click(); // captcha reload
+                    $('#reloadCaptcha').click();
+                    $btn.prop('disabled', false).html(defaultText);
                 },
                 error: function (xhr) {
                     let errors = xhr.responseJSON.errors;
@@ -107,12 +112,12 @@
                     });
                     errorHtml += '</ul></div>';
                     $('#formMessage').html(errorHtml);
-
-                    $('#reloadCaptcha').click(); // captcha reload on error
+                    $('#reloadCaptcha').click();
+                    $btn.prop('disabled', false).html(defaultText);
                 }
             });
         });
+
     });
 </script>
-
 @endsection

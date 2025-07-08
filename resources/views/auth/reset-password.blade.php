@@ -9,22 +9,11 @@
                 <div class="card shadow border-0 p-5">
                     <h1 class="h4 mb-3">Reset Password</h1>
 
-                    <!-- Success/Error Message -->
-                    @if(session('status'))
-                        <div class="alert alert-success small">{{ session('status') }}</div>
-                    @endif
-                    @if($errors->any())
-                        <div class="alert alert-danger small">
-                            <ul class="mb-0">
-                                @foreach($errors->all() as $error)
-                                    <li class="small">{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
+                    <!-- AJAX Message -->
+                    <div id="resetMessage" class="mb-2"></div>
 
                     <!-- Reset Form -->
-                    <form method="POST" action="{{ route('password.store') }}">
+                    <form method="POST" action="{{ route('password.store') }}" id="resetForm">
                         @csrf
 
                         <!-- Token -->
@@ -51,10 +40,10 @@
                                    class="form-control form-control-sm" required autocomplete="new-password">
                         </div>
 
-                       <div class="d-flex justify-content-between align-items-center mt-3">
-    <a href="{{ route('login') }}" class="small">← Back to Login</a>
-    <button type="submit" class="btn btn-sm btn-primary">Reset Password</button>
-</div>
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <a href="{{ route('login') }}" class="small">← Back to Login</a>
+                            <button type="submit" class="btn btn-sm btn-primary" id="resetBtn">Reset Password</button>
+                        </div>
                     </form>
                 </div>
             </div>
@@ -62,3 +51,50 @@
     </div>
 </section>
 @endsection
+
+@section('customjs')
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function () {
+        const $form = $('#resetForm');
+        const $btn = $('#resetBtn');
+        const defaultBtnText = $btn.html();
+
+        $form.on('submit', function (e) {
+            e.preventDefault();
+            $('#resetMessage').html('');
+            $btn.prop('disabled', true).html('🔄 Resetting...');
+
+            $.ajax({
+                url: $form.attr('action'),
+                type: 'POST',
+                data: $form.serialize(),
+                headers: {
+                    'X-CSRF-TOKEN': $('input[name="_token"]').val()
+                },
+                success: function (response) {
+                    $('#resetMessage').html('<div class="alert alert-success small">✔️ Password reset successfully. You may now log in.</div>');
+                    $btn.prop('disabled', false).html(defaultBtnText);
+                    $form[0].reset();
+                },
+                error: function (xhr) {
+                    $btn.prop('disabled', false).html(defaultBtnText);
+
+                    if (xhr.status === 422) {
+                        let errors = xhr.responseJSON.errors;
+                        let html = '<div class="alert alert-danger small"><ul>';
+                        $.each(errors, function (key, value) {
+                            html += '<li>' + value[0] + '</li>';
+                        });
+                        html += '</ul></div>';
+                        $('#resetMessage').html(html);
+                    } else {
+                        $('#resetMessage').html('<div class="alert alert-danger small">❌ Something went wrong. Please try again.</div>');
+                    }
+                }
+            });
+        });
+    });
+</script>
+@endsection
+
