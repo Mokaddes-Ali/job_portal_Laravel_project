@@ -1,4 +1,4 @@
-      <form method="POST" action="{{ route('password.update') }}" class="mt-4">
+      <form id="changePasswordForm" method="POST" action="{{ route('password.update') }}" class="mt-4">
     @csrf
     @method('PUT')
 
@@ -44,3 +44,35 @@
         </div>
     </div>
 </form>
+
+
+<script>
+document.getElementById('changePasswordForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const form = this;
+    const formData = new FormData(form);
+
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+            'Accept': 'application/json'
+        },
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'password-updated') {
+            alert('✔️ Password updated successfully.');
+            form.reset();
+        } else if (data.errors) {
+            // Error দেখাতে চাইলে এখানেও handle করতে পারেন
+            console.error(data.errors);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+});
+</script>

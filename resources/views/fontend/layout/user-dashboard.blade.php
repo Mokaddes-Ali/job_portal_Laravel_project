@@ -16,16 +16,8 @@
                 @include('fontend.layout.sidebar')
             </div>
             <div class="col-lg-9">
-                @hasSection('dashboard')
                 @yield('dashboard')
-                @else
-                <div class="card shadow border-0 p-4">
-                    <h4>Welcome to Your Dashboard</h4>
-                    <p>This is your default dashboard view. Select an option from the sidebar.</p>
-                </div>
-                @endif
             </div>
-
         </div>
 
     </div>

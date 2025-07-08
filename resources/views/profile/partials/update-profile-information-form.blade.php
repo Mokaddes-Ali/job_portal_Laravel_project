@@ -1,4 +1,4 @@
-               <form method="POST" action="{{ route('profile.update') }}">
+<form method="POST" action="{{ route('profile.update') }}">
     @csrf
     @method('PATCH')
 
@@ -10,7 +10,7 @@
             <div class="mb-3">
                 <label for="name" class="form-label">Name*</label>
                 <input type="text" name="name" id="name" class="form-control form-control-sm" placeholder="Enter Name"
-                       value="{{ old('name', auth()->user()->name) }}" required>
+                       value="{{ old('name', $user->name) }}" required>
                 @error('name')
                     <small class="text-danger">{{ $message }}</small>
                 @enderror
@@ -20,12 +20,12 @@
             <div class="mb-3">
                 <label for="email" class="form-label">Email*</label>
                 <input type="email" name="email" id="email" class="form-control form-control-sm" placeholder="Enter Email"
-                       value="{{ old('email', auth()->user()->email) }}" required>
+                       value="{{ old('email', $user->email) }}" required>
                 @error('email')
                     <small class="text-danger">{{ $message }}</small>
                 @enderror
 
-                @if (auth()->user() instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! auth()->user()->hasVerifiedEmail())
+                @if ($user instanceof \Illuminate\Contracts\Auth\MustVerifyEmail && ! $user->hasVerifiedEmail())
                     <div class="text-warning small mt-2">
                         Your email address is unverified. 
                         <button form="send-verification" type="submit" class="btn btn-link p-0 align-baseline">Click here to re-send</button>
@@ -37,24 +37,24 @@
             </div>
 
             <!-- Designation (Optional Field) -->
-            <!-- <div class="mb-3">
+            <div class="mb-3">
                 <label for="designation" class="form-label">Designation</label>
                 <input type="text" name="designation" id="designation" class="form-control form-control-sm" placeholder="Enter designation"
                        value="{{ old('designation', $user->designation ?? '') }}">
                 @error('designation')
                     <small class="text-danger">{{ $message }}</small>
                 @enderror
-            </div> -->
+            </div>
 
             <!-- Mobile (Optional Field) -->
-            <!-- <div class="mb-3">
+            <div class="mb-3">
                 <label for="mobile" class="form-label">Mobile</label>
                 <input type="text" name="mobile" id="mobile" class="form-control form-control-sm" placeholder="Enter mobile number"
                        value="{{ old('mobile', $user->mobile ?? '') }}">
                 @error('mobile')
                     <small class="text-danger">{{ $message }}</small>
                 @enderror
-            </div> -->
+            </div>
         </div>
 
         <!-- Submit -->
