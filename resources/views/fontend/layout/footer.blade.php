@@ -6,10 +6,11 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form>
+        <form id = "profilePicForm" action="" method="POST" enctype="multipart/form-data">
             <div class="mb-3">
                 <label for="exampleInputEmail1" class="form-label">Profile Image</label>
                 <input type="file" class="form-control" id="image"  name="image">
+                <p class="text-danger" id = "image-error"></p>
             </div>
             <div class="d-flex justify-content-end">
                 <button type="submit" class="btn btn-primary mx-3">Update</button>
@@ -21,6 +22,21 @@
     </div>
   </div>
 </div>
+
+
+<!-- Success Modal -->
+<div class="modal fade" id="successModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm modal-dialog-centered">
+    <div class="modal-content bg-success text-white text-center p-4 position-relative">
+      <!-- Close Button -->
+      <button type="button" class="btn-close position-absolute top-0 end-0 m-2" data-bs-dismiss="modal" aria-label="Close"></button>
+      
+      <h5 class="modal-title">Success!</h5>
+      <p class="mt-2">Profile image updated successfully!</p>
+    </div>
+  </div>
+</div>
+
 
 <footer class="bg-dark py-3 bg-2">
 <div class="container">
@@ -34,6 +50,46 @@
 <script src="{{ asset('assets/js/slick.min.js')}}"></script>
 <script src="{{ asset('assets/js/lightbox.min.js')}}"></script>
 <script src="{{ asset('assets/js/custom.js')}}"></script>
+
+<script>
+  $.ajaxSetup({
+    headers: {
+      'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    }
+  });
+
+  $('#profilePicForm').submit(function(e){
+    e.preventDefault();
+
+    let formData = new FormData(this);
+
+    $('#image-error').html('');
+
+    $.ajax({
+      url: '{{ route("ProfilePic") }}',
+      type: 'POST',
+      data: formData,
+      dataType: 'json',
+      contentType: false,
+      processData: false,
+      success: function(response){
+        if(response.status === false){
+        const errors = response.errors;
+        if(errors.image){
+          $('#image-error').html(errors.image[0]);
+        }
+      } else {
+       $('#exampleModal').modal('hide');
+        $('#successModal').modal('show');
+        $('#profilePicForm')[0].reset();
+        setTimeout(() => {
+            $('#successModal').modal('hide');
+          }, 3000);
+      }
+    },
+    });
+  });
+</script>
 
 @yield('customjs')
 </body>

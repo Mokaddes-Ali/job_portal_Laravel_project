@@ -50,9 +50,6 @@
                 url: $form.attr('action'),
                 method: 'POST',
                 data: $form.serialize(),
-                headers: {
-                    'X-CSRF-TOKEN': $('input[name="_token"]').val()
-                },
                 success: function (response) {
                     $('#formMessage').html('<div class="alert alert-success small">✅ Reset link sent successfully! Please check your email.</div>');
                     $form[0].reset();

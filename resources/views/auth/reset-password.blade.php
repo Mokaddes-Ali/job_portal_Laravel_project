@@ -69,9 +69,6 @@
                 url: $form.attr('action'),
                 type: 'POST',
                 data: $form.serialize(),
-                headers: {
-                    'X-CSRF-TOKEN': $('input[name="_token"]').val()
-                },
                 success: function (response) {
                     $('#resetMessage').html('<div class="alert alert-success small">✔️ Password reset successfully. You may now log in.</div>');
                     $btn.prop('disabled', false).html(defaultBtnText);

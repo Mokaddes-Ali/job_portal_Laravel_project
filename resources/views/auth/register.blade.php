@@ -67,7 +67,6 @@
 @endsection
 
 @section('customjs')
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function () {
 
@@ -95,9 +94,6 @@
                 url: '{{ route("register") }}',
                 method: 'POST',
                 data: $(this).serialize(),
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
                 success: function (response) {
                     $('#formMessage').html('<div class="alert alert-success">✔️ Registration successful!</div>');
                     $('#registrationForm')[0].reset();

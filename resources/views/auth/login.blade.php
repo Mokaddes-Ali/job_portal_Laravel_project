@@ -45,7 +45,7 @@
                 <!-- Register Link -->
                 <div class="mt-4 text-center">
                     <p>Do not have an account?
-                        <a href="#" data-route="{{ route('register') }}">Register</a>
+                        <a href="{{ route('register') }}" >Register</a>
                     </p>
                 </div>
             </div>
@@ -75,17 +75,12 @@ $(document).ready(function() {
             url: $form.attr('action'),
             method: 'POST',
             data: $form.serialize(),
-            headers: {
-                'X-CSRF-TOKEN': $('input[name="_token"]').val()
-            },
             success: function(response) {
                 $btn.prop('disabled', false).html(defaultText);
 
                 // Optional: redirect on success
                 if (response.redirect) {
                     window.location.href = response.redirect;
-                } else {
-                    $('#loginStatusMsg').text('Login successful!');
                 }
             },
             error: function(xhr) {
