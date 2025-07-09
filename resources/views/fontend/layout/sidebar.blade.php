@@ -16,6 +16,12 @@
 <div class="card account-nav border-0 shadow mb-4 mb-lg-0">
     <div class="card-body p-0">
         <ul class="list-group list-group-flush ">
+             <li class="list-group-item d-flex justify-content-between p-3">
+                <a href="{{ route('categories.index') }}">Job Category</a>
+            </li>
+             <li class="list-group-item d-flex justify-content-between p-3">
+                <a href="{{ url('/job-types') }}">Job Type</a>
+            </li>
             <li class="list-group-item d-flex justify-content-between p-3">
                 <a href="{{ route('profile.edit') }}">Account Settings</a>
             </li>

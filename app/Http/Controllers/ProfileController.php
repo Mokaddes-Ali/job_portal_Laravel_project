@@ -12,7 +12,9 @@ use Illuminate\View\View;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Validator;
 use Intervention\Image\ImageManager;
-use Intervention\Image\Drivers\Imagick\Driver;
+use Intervention\Image\Drivers\Gd\Driver;
+
+use Illuminate\Support\Facades\File;
 
 
 
@@ -33,63 +35,83 @@ class ProfileController extends Controller
      * Update the user's profile information.
      */
 
-public function update(ProfileUpdateRequest $request): RedirectResponse|JsonResponse
+    public function update(ProfileUpdateRequest $request): RedirectResponse|JsonResponse
+    {
+        $user = $request->user();
+
+        $user->fill($request->only([
+            'name',
+            'email',
+            'designation',
+            'mobile'
+        ]));
+
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
+        }
+
+        $user->save();
+
+        if ($request->ajax()) {
+            return response()->json(['message' => 'Profile updated']);
+        }
+
+        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    }
+
+
+   public function updateProfilePic(Request $request)
 {
-    $user = $request->user();
-
-    $user->fill($request->only([
-        'name',
-        'email',
-        'designation',
-        'mobile'
-    ]));
-
-    if ($user->isDirty('email')) {
-        $user->email_verified_at = null;
-    }
-
-    $user->save();
-
-    if ($request->ajax()) {
-        return response()->json(['message' => 'Profile updated']);
-    }
-
-    return Redirect::route('profile.edit')->with('status', 'profile-updated');
-}
-
-
-public function updateProfilePic(Request $request){
     $id = Auth::user()->id;
-     $user = Auth::user();
-    // dd($request->all());
-    $validator = Validator::make($request->all(),[
+    $user = Auth::user();
+    
+    $validator = Validator::make($request->all(), [
         'image' => 'required|image|mimes:jpg,jpeg,png|max:2048'
-
     ]);
-    if( $validator->passes()){
+
+    if ($validator->passes()) {
         $image = $request->image;
         $ext = $image->getClientOriginalExtension();
-        $imageName = $id . '-'. time() . $ext;
+        $imageName = $id . '-' . time() . '.' . $ext;
 
-         if ($user->image && file_exists(public_path('profile_pic/' . $user->image))) {
-            unlink(public_path('profile_pic/' . $user->image));
-             unlink(public_path('profile_pic/thumb/' . $user->image));
+        // Delete old images if they exist
+        if ($user->image) {
+            $mainImagePath = public_path('profile_pic/' . $user->image);
+            $thumbImagePath = public_path('profile_pic/thumb/' . $user->image);
+
+            if (File::exists($mainImagePath)) {
+                File::delete($mainImagePath);
+            }
+
+            if (File::exists($thumbImagePath)) {
+                File::delete($thumbImagePath);
+            }
         }
-          $image->move(public_path('/profile_pic'),$imageName);
-        //   Create small thumbnail
-$sourcePath = public_path('/profile_pic'.$imageName);
-$manager = new ImageManager(Driver::class);
-$image = $manager->read($sourcePath);
-$image->cover(150, 150);
-$image->toPng()->save(public_path('/profile_pic/thumb/').$imageName);
 
-        User::where('id', $id)->update(['image' =>$imageName ]);
+        // Save main image
+        $image->move(public_path('profile_pic'), $imageName);
+        
+        // Create thumbnail directory if it doesn't exist
+        $thumbPath = public_path('profile_pic/thumb');
+        if (!File::exists($thumbPath)) {
+            File::makeDirectory($thumbPath, 0755, true);
+        }
+
+        // Create thumbnail
+        $sourcePath = public_path('profile_pic/' . $imageName);
+        $manager = new ImageManager(new Driver());
+        $image = $manager->read($sourcePath);
+        $image->cover(150, 150);
+        $image->toPng()->save(public_path('profile_pic/thumb/' . $imageName));
+
+        // Update user record
+        User::where('id', $id)->update(['image' => $imageName]);
 
         return response()->json([
-        'status' => true,
-        'message' => 'Image uploaded successfully'
-    ]);
-    }else{
+            'status' => true,
+            'message' => 'Profile image updated successfully!'
+        ]);
+    } else {
         return response()->json([
             'status' => false,
             'errors' => $validator->errors()

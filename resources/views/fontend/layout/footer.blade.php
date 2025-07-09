@@ -58,7 +58,7 @@
     }
   });
 
-  $('#profilePicForm').submit(function(e){
+ $('#profilePicForm').submit(function(e){
     e.preventDefault();
 
     let formData = new FormData(this);
@@ -66,29 +66,36 @@
     $('#image-error').html('');
 
     $.ajax({
-      url: '{{ route("ProfilePic") }}',
-      type: 'POST',
-      data: formData,
-      dataType: 'json',
-      contentType: false,
-      processData: false,
-      success: function(response){
-        if(response.status === false){
-        const errors = response.errors;
-        if(errors.image){
-          $('#image-error').html(errors.image[0]);
+        url: '{{ route("ProfilePic") }}',
+        type: 'POST',
+        data: formData,
+        dataType: 'json',
+        contentType: false,
+        processData: false,
+        success: function(response){
+            if(response.status === false){
+                const errors = response.errors;
+                if(errors.image){
+                    $('#image-error').html(errors.image[0]);
+                }
+            } else {
+                $('#exampleModal').modal('hide');
+                $('#successModal').modal('show');
+                $('#profilePicForm')[0].reset();
+                
+                // Reload the page after 3 seconds to show the new image
+                setTimeout(() => {
+                    $('#successModal').modal('hide');
+                    window.location.reload();
+                }, 3000);
+            }
+        },
+        error: function(xhr, status, error) {
+            $('#image-error').html('An error occurred while uploading the image.');
+            console.error(error);
         }
-      } else {
-       $('#exampleModal').modal('hide');
-        $('#successModal').modal('show');
-        $('#profilePicForm')[0].reset();
-        setTimeout(() => {
-            $('#successModal').modal('hide');
-          }, 3000);
-      }
-    },
     });
-  });
+});
 </script>
 
 @yield('customjs')
